@@ -1,0 +1,220 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "\"You are 'RealtyBot', an AI property advisor for a premier Mumbai real estate brokerage. Your job is to qualify inbound leads.\n\nConversational Guidelines:\n\n    Keep responses concise (1–2 sentences) and natural.\n\n    Collect 6 details across the chat: Name, Phone Number, Type (Buy/Rent), Configuration (e.g., 1/2/3 BHK), Preferred Locality (e.g., Bandra, BKC, Powai), and Budget.\n\n    Once all 6 parameters are gathered, thank the user and trigger the 'save_property_lead' tool immediately.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        -176
+      ],
+      "id": "7a113039-38f9-4999-aad1-a001488f1c7f",
+      "name": "AI Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        272,
+        96
+      ],
+      "id": "d8e10c57-b52f-446e-b092-0e6817aeba6a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        16,
+        -176
+      ],
+      "id": "63a381db-7872-4018-b2cc-c0fea6896b60",
+      "name": "Telegram Trigger",
+      "webhookId": "01944cfe-e661-490d-98e9-f1bfaab590f0",
+      "credentials": {
+        "telegramApi": {
+          "id": "MAh96gDJHMiM7PqX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        112
+      ],
+      "id": "91a13db9-ad76-4afb-a175-787992aa38cd",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        -176
+      ],
+      "id": "ed82ee65-0214-4349-90f6-cb4f4b7bae2d",
+      "name": "Send a text message",
+      "webhookId": "a182136a-c2bf-4c54-a2e7-2218963293cd",
+      "credentials": {
+        "telegramApi": {
+          "id": "MAh96gDJHMiM7PqX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to save the lead to the database ONLY after you have asked for and collected their Name, Intent, Configuration, Locality, and Budget",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "=appHWmVexsLj73sVl",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblzsruzKxf8tLMlS"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        80
+      ],
+      "id": "a0813696-dd7d-49f3-905c-7d061bf7f74a",
+      "name": "Create a record in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "AH25xs2wzqnwPYh2",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record in Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3fdbbd2b-f44e-4e4b-9649-04c542b083d6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8518f3e94e9dd5bae81f16b74a4be9e351340843de06ccc204327c77fc452f96"
+  },
+  "nodeGroups": [],
+  "id": "ABRuyjvV2ttuZaDA",
+  "tags": []
+}
