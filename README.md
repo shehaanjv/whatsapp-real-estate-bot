@@ -3,7 +3,7 @@
 
 * "Transitioned the user interface from WhatsApp (Twilio) to Telegram to leverage its free, developer-friendly API for continuous testing."
 
-An automated, AI-driven Telegram bot designed to act as a virtual property advisor for a premier Mumbai real estate brokerage. Built for the CODIMAI project, this agent converses naturally with prospective clients, qualifies their requirements, and automatically logs structured lead data into an Airtable CRM.
+An automated, AI-driven Telegram bot designed to act as a virtual property advisor for a premier Mumbai real estate brokerage. This agent converses naturally with prospective clients, qualifies their requirements, and automatically logs structured lead data into an Airtable CRM.
 
 ## 🚀 Live Demo
 ![Demo]([Link to your GIF or video demo here])
